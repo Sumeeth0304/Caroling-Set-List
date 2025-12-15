@@ -1,42 +1,43 @@
 document.addEventListener("DOMContentLoaded", () => {
   const scrollBox = document.getElementById("autoScrollBox");
   const toggleBtn = document.getElementById("scrollToggleBtn");
-
-  if (!scrollBox || !toggleBtn) {
-    console.error("Elements not found");
-    return;
-  }
+  const speedSelect = document.getElementById("scrollSpeedSelect");
 
   let isScrolling = false;
-  let scrollSpeed = 1; // TEMP: faster so you can SEE it
+  let scrollSpeed = parseFloat(speedSelect.value); // pixels per second
+  let lastTime = null;
 
-  function scrollLoop() {
+  function animate(time) {
+    if (!lastTime) lastTime = time;
+    const delta = time - lastTime;
+    lastTime = time;
+
     if (isScrolling) {
-      scrollBox.scrollTop += scrollSpeed;
-
-      // Stop at bottom
-      if (
-        scrollBox.scrollTop + scrollBox.clientHeight >=
-        scrollBox.scrollHeight
-      ) {
-        isScrolling = false;
-        toggleBtn.textContent = "▶ Start Auto Scroll";
-      }
+      const distance = (scrollSpeed * delta) / 1000;
+      scrollBox.scrollTop += distance;
     }
 
-    requestAnimationFrame(scrollLoop);
+    requestAnimationFrame(animate);
+  }
+
+  function startScrolling() {
+    isScrolling = true;
+    lastTime = null; // reset timing
+    toggleBtn.textContent = "⏸ Pause Auto Scroll";
+  }
+
+  function stopScrolling() {
+    isScrolling = false;
+    toggleBtn.textContent = "▶ Start Auto Scroll";
   }
 
   toggleBtn.addEventListener("click", () => {
-    console.log("Scrolling:", isScrolling);
-console.log("scrollTop:", scrollBox.scrollTop);
-console.log("scrollHeight:", scrollBox.scrollHeight);
-    isScrolling = !isScrolling;
-    toggleBtn.textContent = isScrolling
-      ? "⏸ Pause Auto Scroll"
-      : "▶ Start Auto Scroll";
+    isScrolling ? stopScrolling() : startScrolling();
   });
 
-  // START LOOP ONCE
-  scrollLoop();
+  speedSelect.addEventListener("change", (e) => {
+    scrollSpeed = parseFloat(e.target.value);
+  });
+
+  requestAnimationFrame(animate);
 });
