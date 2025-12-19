@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const speedSelect = document.getElementById("scrollSpeedSelect");
 
   let isScrolling = false;
-  let scrollSpeed = parseFloat(speedSelect.value); // pixels per second
+  let scrollSpeed = parseFloat(speedSelect.value); // base speed value
   let lastTime = null;
 
   function animate(time) {
@@ -13,7 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
     lastTime = time;
 
     if (isScrolling) {
-      const distance = (scrollSpeed * delta) / 1000;
+      // ✅ FIXED FORMULA (non-linear, smooth perception)
+      const adjustedSpeed = Math.sqrt(scrollSpeed) * 10;
+      const distance = (adjustedSpeed * delta) / 1000;
+
       scrollBox.scrollTop += distance;
     }
 
@@ -22,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startScrolling() {
     isScrolling = true;
-    lastTime = null; // reset timing
+    lastTime = null;
     toggleBtn.textContent = "⏸ Pause Auto Scroll";
   }
 
